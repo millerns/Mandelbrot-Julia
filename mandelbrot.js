@@ -14,7 +14,7 @@ var CANVAS_WIDTH_HEIGHT_RATIO = 16.0 / 9.0;
 var FRACTAL_SELECTOR = 0;
 var COLOR_SELECTOR = 1;
 
-var MAX_ITERATIONS = 2000; //Number of iterations. Higher is slower but more detailed.
+var MAX_ITERATIONS = 900; //Number of iterations. Higher is slower but more detailed.
 var STATIC_ZOOM_BOX_FACTOR = 0.25; //Amount of zoom from double clicks. Increase to increase zoom
 var DEFAULT_MESSAGE = "Click or click and drag to zoom";
 
@@ -126,7 +126,6 @@ function drawMandelbrot() {
     //the current pixel of the image
     var currentPixel = 0;
 
-    //for (var y=0; y< canvasHeight; y++){
     for (var y = 0; y < canvasHeight; y++) {
         var c_Im = (y * y_coordinate_to_pixel) + ImMax; // c = c_Re + cIm * i
 
@@ -448,7 +447,7 @@ function handlePointer(evt) {
             // Enforce proportions
             zoomBoxWidth = zoomBoxHeight * canvasWidthHeightRatio;
 
-            if (zoomBoxHeight == 0) {
+            if (zoomBoxHeight === 0) {
                 //No box was drawn, so perform fixed zoom
                 var staticZoomBoxWidth = globals.staticZoomBoxWidth;
                 var staticZoomBoxHeight = globals.staticZoomBoxHeight;
@@ -480,19 +479,19 @@ function handlePointer(evt) {
             setExtrema(ReMax, ReMin, ImMax, ImMin);
             // Allows "calculating" to be displayed
             if (window.setImmediate) {
-                if (FRACTAL_SELECTOR == 0) {
+                if (FRACTAL_SELECTOR === 0) {
                     window.setImmediate(drawMandelbrot);
-                } else if (FRACTAL_SELECTOR == 1) {
+                } else if (FRACTAL_SELECTOR === 1) {
                     window.setImmediate(drawBurningShip);
-                } else if (FRACTAL_SELECTOR == 2) {
+                } else if (FRACTAL_SELECTOR === 2) {
                     window.setImmediate(drawJulia);
                 }
             } else {
-                if (FRACTAL_SELECTOR == 0) {
+                if (FRACTAL_SELECTOR === 0) {
                     window.setTimeout(drawMandelbrot, 0);
-                } else if (FRACTAL_SELECTOR == 1) {
+                } else if (FRACTAL_SELECTOR === 1) {
                     window.setTimeout(drawBurningShip, 0);
-                } else if (FRACTAL_SELECTOR == 2) {
+                } else if (FRACTAL_SELECTOR === 2) {
                     window.setTimeout(drawJulia, 0);
                 }
             } // if-else
@@ -521,11 +520,11 @@ function resetZoom() {
     var reMax = adjusted_RE_MAX();
 
     setExtrema(reMax, RE_MIN, IM_MAX, IM_MIN);
-    if (FRACTAL_SELECTOR == 0) {
+    if (FRACTAL_SELECTOR === 0) {
         drawMandelbrot();
-    } else if (FRACTAL_SELECTOR == 1) {
+    } else if (FRACTAL_SELECTOR === 1) {
         drawBurningShip();
-    } else if (FRACTAL_SELECTOR == 2) {
+    } else if (FRACTAL_SELECTOR === 2) {
         drawJulia();
     }
 } // resetZoom
@@ -589,12 +588,12 @@ function handleFormSubmit(evt) {
     evt.preventDefault(); // Do not refresh the page when submit is clicked
     console.log("handleFormSubmit fired");
     var filename = evt.target[0].value;
-    if (filename == "") {
-        if (FRACTAL_SELECTOR == 0) {
+    if (filename === "") {
+        if (FRACTAL_SELECTOR === 0) {
             filename = "Mandelbrot.png";
-        } else if (FRACTAL_SELECTOR == 1) {
+        } else if (FRACTAL_SELECTOR === 1) {
             filename = "BurningShip.png";
-        } else if (FRACTAL_SELECTOR == 2) {
+        } else if (FRACTAL_SELECTOR === 2) {
             filename = "Julia.png";
         }
     }
@@ -644,13 +643,13 @@ function setColor(iterations) {
     //return singleHueStraight(iterations + 50);
     //return spectrumCycle(iterations);
 
-    if (COLOR_SELECTOR == 0) {
+    if (COLOR_SELECTOR === 0) {
         return juliaColors(iterations);
-    } else if (COLOR_SELECTOR == 1) {
+    } else if (COLOR_SELECTOR === 1) {
         return spectrumCycle(iterations);
-    } else if (COLOR_SELECTOR == 2) {
+    } else if (COLOR_SELECTOR === 2) {
         return burningColors(iterations);
-    } else if (COLOR_SELECTOR == 3) {
+    } else if (COLOR_SELECTOR === 3) {
         return singleHueStraight(iterations + 50);
     } else {
         return [255, 255, 255, 255];
