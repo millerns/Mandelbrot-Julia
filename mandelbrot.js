@@ -103,6 +103,37 @@ function adjusted_RE_MAX() {
 
 /*------------------------------------------------------------------------------------------------*/
 
+/**
+ * Generates a fractal image of a specified size from a given iteration function
+ * and coloring function. Returns an imageDataObject
+ * @param {int} canvasHeight
+ * @param {int} canvasWidth
+ * @param {function} iterationFunction
+ * @param {function} coloringFunction
+ * @returns {imageDataObject} fractalImage
+ */
+function createFractalImage(canvasHeight, canvasWidth, iterationFunction, coloringFunction){
+    
+    var fractalImage = createImageData(canvasWidth, canvasHeight);
+    var imageDataObjectData = fractalImage.data;
+    var imageIndex = 0;
+    
+    for (var y = 0; y < canvasHeight; y++){
+        for (var x = 0; x<canvasWidth; x++){
+            var iterations = iterationFunction(real, imaginary);
+            var colorArray = coloringFunction(iterations);
+            imageDataObjectData[imageIndex++] = colorArray[0];
+            imageDataObjectData[imageIndex++] = colorArray[1];
+            imageDataObjectData[imageIndex++] = colorArray[2];
+            imageDataObjectData[imageIndex++] = colorArray[3];
+        }
+    }
+    
+    return fractalImage;
+} // createFractalImage
+
+/*------------------------------------------------------------------------------------------------*/
+
 function drawMandelbrot() {
     var startTime = new Date(); // Keep track of how long this render takes
     var canvas = globals.canvas;
