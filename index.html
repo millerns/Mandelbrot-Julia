@@ -7,14 +7,14 @@ For CSSE 325
 -->
 <html>
     <head>
-        <title>Mandelbrot Set & Julia Set Viewer</title>
+        <title>Fractal Viewer</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <link rel="stylesheet" type="text/css" href="style.css">
         <script src="mandelbrot.js"></script>
     </head>
 
     <body>
-        <div><h1>Mandelbrot Set</h1></div>
+        <div><h1>Fractals!</h1></div>
         <p>Can save and zoom!</p>
         <table>
             <tr>
@@ -22,10 +22,16 @@ For CSSE 325
                 <td id="elapsedTime"></td>
             </tr>
         </table>
+        <!--
+            1920    1080
+            1280    720
+            
+        -->
         <canvas width="1280" height="720">Canvas not supported - upgrade your browser</canvas><br>
         <button type="button" id="resetButton">Reset</button>
-        <button type="button" id="lightenButton">Lighten</button>
+        <button type="button" id="changeColorButton">Colors</button>
         <button type="button" id="saveButton">Save</button>
+        <button type="button" id="fractalToggleButton">Toggle</button>
         <form id="filenameForm">
             Extensionless filename: <input id="filename" type="text"> <input type="submit" value="Submit">
         </form>
