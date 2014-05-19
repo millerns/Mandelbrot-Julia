@@ -1,20 +1,22 @@
 
 //Real and Imaginary bounds to our coordinate system
-var RE_MAX = 1.1;
-var RE_MIN = -2.5;
-var IM_MAX = 1.2;
-var IM_MIN = -1.2;
-//var IM_MAX = 1.4;
-//var IM_MIN = -1;
-//var RE_MAX = 2.0;
-//var RE_MIN = -2.0;
-//var IM_MAX = 2.0;
-//var IM_MIN = -2.0;
+//var RE_MAX = 1.1;
+//var RE_MIN = -2.5;
+//var IM_MAX = 1.2;
+//var IM_MIN = -1.2;
+
+var RE_MAX = 1.0;
+var RE_MIN = -2.0;
+var IM_MAX = 1.5;
+var IM_MIN = -1.5;
 var MANDELBROT_SET_COLOR = [0, 0, 0, 255];
 var ZOOM_BOX_COLOR = "rgba(255, 255, 255, 0.3)";
 var CANVAS_WIDTH_HEIGHT_RATIO = 16.0 / 9.0;
 var FRACTAL_SELECTOR = 2;
-var COLOR_SELECTOR = 0;
+var COLOR_SELECTOR = 1;
+
+var JULIA_SEED_RE = -.67319;//-0.67319
+var JULIA_SEED_IM = .3542;//0.34442
 
 var MAX_ITERATIONS = 1200; //Number of iterations. Higher is slower but more detailed.
 var STATIC_ZOOM_BOX_FACTOR = 0.25; //Amount of zoom from clicks. Increase to increase zoom
@@ -81,6 +83,9 @@ function loadSizes() {
 
     globals.pointer = {};
     globals.pointer.down = false;
+
+    globals.j_re = JULIA_SEED_RE;
+    globals.j_im = JULIA_SEED_IM;
 
     //color and opacity of the zoom box
     canvas.getContext('2d').fillStyle = ZOOM_BOX_COLOR;
@@ -179,7 +184,7 @@ function drawMandelbrotSet(){
     var IM_MIN = -1.2;
     //var coordinateLimits = {ReMax: RE_MAX, ReMin: globals.RE_MIN, ImMax:globals.IM_MAX, ImMin: globals.IM_MIN};
     var coordinateLimits = {ReMax: globals.ReMax, ReMin: globals.ReMin, ImMax:globals.ImMax, ImMin: globals.ImMin};
-    createFractalImage(globals.canvas, coordinateLimits, mandelbrotIterationFunction, spectrumCycle);
+    createFractalImage(globals.canvas, coordinateLimits, mandelbrotIterationFunction, setColor);
 } // drawMandelbrotSet
 
 /*------------------------------------------------------------------------------------------------*/
@@ -193,8 +198,22 @@ function drawBurningShipFractal(){
     var IM_MAX = 1.2;
     var IM_MIN = -1.2;
     var coordinateLimits = {ReMax: globals.ReMax, ReMin: globals.ReMin, ImMax:globals.ImMax, ImMin: globals.ImMin};
-    createFractalImage(globals.canvas, coordinateLimits, burningShipIterationFunction, burningColors);
-} // drawMandelbrotSet
+    createFractalImage(globals.canvas, coordinateLimits, burningShipIterationFunction, setColor);
+} // drawBurningShipFractal
+
+/*------------------------------------------------------------------------------------------------*/
+
+/**
+ * Draw a Julia Set
+ */
+function drawJuliaSet(){
+    var RE_MAX = 1.1;
+    var RE_MIN = -2.5;
+    var IM_MAX = 1.2;
+    var IM_MIN = -1.2;
+    var coordinateLimits = {ReMax: globals.ReMax, ReMin: globals.ReMin, ImMax:globals.ImMax, ImMin: globals.ImMin};
+    createFractalImage(globals.canvas, coordinateLimits, juliaIterationFunction, setColor);
+} // drawJuliaSet
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -265,93 +284,34 @@ function burningShipIterationFunction(c_re, c_im){
 
 /*------------------------------------------------------------------------------------------------*/
 
-function drawJulia() {
-
-    var startTime = new Date(); // Keep track of how long this render takes
-    var canvas = globals.canvas;
-    var canvasWidth = canvas.width;
-    var canvasHeight = canvas.height;
-    var ctx = canvas.context;
-    var imageDataObjectData = ctx.imageDataObject.data; // Reference
-
-    //Set extrema needs to have been called first
-    var ReMax = globals.ReMax;
-    var ReMin = globals.ReMin;
-    var ImMax = globals.ImMax;
-    var ImMin = globals.ImMin;
-
-    //Calculate outside the loop for opimization
-    var x_coefficient = (ReMax - ReMin) / canvasWidth;
-    var y_coefficient = (ImMin - ImMax) / canvasHeight;
-
-    var iterationSum = 0;
-    var currentPixel = 0;
-
-//    var c_Re = -.74173;
-//    var c_Im = .15518;
-
-//    var c_Re = -.62772;
-//    var c_Im = .42193;
-
-    var c_Re = -1;
-    var c_Im = 0;
-
-    var boundaryValue = 4;
-    //boundaryValue *= boundaryValue;
-
-    //for (var y=canvasHeight; y> 0; y--){
-    for (var y = 0; y < canvasHeight; y++) {
-        var z_Im = (y * y_coefficient) + ImMax; // c = c_Re + cIm * i
-
-        for (var x = 0; x < canvasWidth; x++) {
-            var z_Re = (x * x_coefficient) + ReMin; //convert the canvas x to the coordinate x
-
-            var belongsToJulia = true;
-            var iterationsForColor = 0;
-            for (var iterationCount = 1; iterationCount <= MAX_ITERATIONS; iterationCount++) {
-                iterationSum++;
-
-                var z_Re_squared = z_Re * z_Re;
-                var z_Im_squared = z_Im * z_Im;
-
-                //checks if magnitude of z is greater than 2 and thus diverges to infinity
-                if ((z_Re > boundaryValue) || (z_Im > boundaryValue)) {
-                    belongsToJulia = false; // c is not a part of the set
-                    iterationsForColor = iterationCount;
-                    break;
-                } // if
-
-                z_Re = z_Re_squared - z_Im_squared + c_Re;
-                z_Im = (2 * z_Re * z_Im) + c_Im;
-
-            } // for
-            var colorArray = [];
-            if (belongsToJulia) {
-                colorArray = MANDELBROT_SET_COLOR;
-            } else {
-                colorArray = setColor(iterationsForColor);
-            } // if-else
-            imageDataObjectData[currentPixel++] = colorArray[0];    //RED
-            imageDataObjectData[currentPixel++] = colorArray[1];    //GREEN
-            imageDataObjectData[currentPixel++] = colorArray[2];    //BLUE
-            imageDataObjectData[currentPixel++] = colorArray[3];    //ALPHA
-
-        } // for
-    } // for
-
-    //Place the image on the canvas
-    ctx.putImageData(ctx.imageDataObject, 0, 0);
-
-    var elapsedMilliseconds = (new Date()) - startTime;
-    // Show elapsed time
-    document.getElementById('elapsedTime').innerHTML = iterationSum.format() +
-            " iterations in " + (elapsedMilliseconds / 1000).toFixed(2) + " seconds";
-    //Remove "calculating" message
-    document.getElementById('messageBox').innerHTML = DEFAULT_MESSAGE;
-} // drawBurningShip
+/**
+ * Iterates according to the Julia Set function
+ */
+function juliaIterationFunction(c_re, c_im){
+    
+    var j_re = globals.j_re;
+    var j_im = globals.j_im;
+    
+    var z_re = c_re;
+    var z_im = c_im;
+    for (var iterations = 1; iterations < MAX_ITERATIONS; iterations ++){
+         //Calculate here for optimization
+        var z_re_squared = z_re * z_re;
+        var z_im_squared = z_im * z_im;
+        
+        //checks if magnitude of z is greater than 2 and thus diverges to infinity
+        if (z_re_squared + z_im_squared > 4) {
+            return iterations;
+        } // if
+        
+        //the next Z value
+        z_im = (2 * z_re * z_im) + j_im;
+        z_re = z_re_squared - z_im_squared + j_re;
+    }    
+    return -1;
+} // juliaIterationFunction
 
 /*------------------------------------------------------------------------------------------------*/
-
 
 /**
  * Converts a canvas x value to complex plane real value
@@ -469,7 +429,7 @@ function handlePointer(evt) {
                 } else if (FRACTAL_SELECTOR === 1) {
                     window.setImmediate(drawBurningShipFractal);
                 } else if (FRACTAL_SELECTOR === 2) {
-                    window.setImmediate(drawJulia);
+                    window.setImmediate(drawJuliaSet);
                 }
             } else {
                 if (FRACTAL_SELECTOR === 0) {
@@ -477,7 +437,7 @@ function handlePointer(evt) {
                 } else if (FRACTAL_SELECTOR === 1) {
                     window.setTimeout(drawBurningShipFractal, 0);
                 } else if (FRACTAL_SELECTOR === 2) {
-                    window.setTimeout(drawJulia, 0);
+                    window.setTimeout(drawJuliaSet, 0);
                 }
             } // if-else
             break;
@@ -510,7 +470,7 @@ function resetZoom() {
         //drawBurningShip();
         drawBurningShipFractal()
     } else if (FRACTAL_SELECTOR === 2) {
-        drawJulia();
+        drawJuliaSet();
     }
 } // resetZoom
 
@@ -571,7 +531,6 @@ function handleFractalToggleButton() {
 
 function handleFormSubmit(evt) {
     evt.preventDefault(); // Do not refresh the page when submit is clicked
-    console.log("handleFormSubmit fired");
     var filename = evt.target[0].value;
     if (filename === "") {
         if (FRACTAL_SELECTOR === 0) {
@@ -652,6 +611,9 @@ function setColor(iterations) {
 } // setColor
 
 function juliaColors(iterations) {
+    if (iterations < 0){
+        return MANDELBROT_SET_COLOR;
+    }
     var color = iterations % 5;
     var r = 0;
     var g = 0;
