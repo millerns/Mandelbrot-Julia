@@ -10,41 +10,12 @@ For CSSE 325
         <title>Fractal Viewer</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <link rel="stylesheet" type="text/css" href="style.css">
-        <script src="mandelbrot.js"></script>
     </head>
-
     <body>
         <div><h1>Fractals!</h1></div>
-        <p>Can save and zoom!</p>
-        <table>
-            <tr>
-                <td id="messageBox"></td>
-                <td id="elapsedTime"></td>
-            </tr>
-        </table>
-        <!--
-            1920    1080
-            1280    720
-            960     540
-            640     360
-            320     180
-        -->
-        <canvas width="960" height="540">Canvas not supported - upgrade your browser</canvas><br>
-        <button type="button" id="resetButton">Reset</button>
-        <button type="button" id="changeColorButton">Colors</button>
-        <button type="button" id="saveButton">Save</button>
-        <button type="button" id="fractalToggleButton">Toggle</button>
-        <form id="filenameForm">
-            Extensionless filename: <input id="filename" type="text"> <input type="submit" value="Submit">
-        </form>
-        <form id="paramatersForm">
-            Width: <input id="width" type="number" name="width" value="1200" min="300" max="3000" step="300">
-            Iterations: <input id="iterations" type="number" name="iterations" value="900" min="100" max="3000" step="100">
-            <button type="button" id="changeParametersButton">Update</button>
-        </form>
-        <br>
-        <script>
-            
-        </script> 
+        <ul>
+            <li><a href="singleFractal.html" >Single Fractal Viewer</a></li>
+            <li><a href="mandelbrot-julia.html" >Mandelbrot-Julia Viewer</a></li>
+        </ul>        
     </body>
 </html>
