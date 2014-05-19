@@ -10,16 +10,16 @@ For CSSE 325
         <title>Fractal Viewer</title>
         <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
         <link rel="stylesheet" type="text/css" href="style.css">
-        <script src="mandelbrot.js"></script>
+        <script src="mandelbrot-julia.js"></script>
     </head>
 
     <body>
-        <div><h1>Fractals!</h1></div>
-        <p>Can save and zoom!</p>
+        <div><h1>Mandelbrot - Julia Viewer</h1></div>
+        <p>Select a point on the Mandelbrot Set to generate the related Julia Set.</p>
         <table>
             <tr>
-                <td id="messageBox"></td>
-                <td id="elapsedTime"></td>
+                <td id="messageBoxM"></td>
+                <td id="elapsedTimeM"></td>
             </tr>
         </table>
         <!--
@@ -30,6 +30,13 @@ For CSSE 325
             320     180
         -->
         <canvas width="960" height="540">Canvas not supported - upgrade your browser</canvas><br>
+        <canvas width="960" height="540">Canvas not supported - upgrade your browser</canvas><br>
+        <table>
+            <tr>
+                <td id="messageBoxJ"></td>
+                <td id="elapsedTimeJ"></td>
+            </tr>
+        </table>
         <button type="button" id="resetButton">Reset</button>
         <button type="button" id="changeColorButton">Colors</button>
         <button type="button" id="saveButton">Save</button>
