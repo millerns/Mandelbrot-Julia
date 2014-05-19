@@ -1,21 +1,23 @@
 
 //Real and Imaginary bounds to our coordinate system
-//var RE_MAX = 1.1;
-//var RE_MIN = -2.5;
-//var IM_MAX = 1.2;
-//var IM_MIN = -1.2;
-var RE_MAX = 2.0;
-var RE_MIN = -2.0;
-var IM_MAX = 2.0;
-var IM_MIN = -2.0;
+var RE_MAX = 1.1;
+var RE_MIN = -2.5;
+var IM_MAX = 1.2;
+var IM_MIN = -1.2;
+//var IM_MAX = 1.4;
+//var IM_MIN = -1;
+//var RE_MAX = 2.0;
+//var RE_MIN = -2.0;
+//var IM_MAX = 2.0;
+//var IM_MIN = -2.0;
 var MANDELBROT_SET_COLOR = [0, 0, 0, 255];
 var ZOOM_BOX_COLOR = "rgba(255, 255, 255, 0.3)";
 var CANVAS_WIDTH_HEIGHT_RATIO = 16.0 / 9.0;
-var FRACTAL_SELECTOR = 0;
-var COLOR_SELECTOR = 1;
+var FRACTAL_SELECTOR = 2;
+var COLOR_SELECTOR = 0;
 
-var MAX_ITERATIONS = 900; //Number of iterations. Higher is slower but more detailed.
-var STATIC_ZOOM_BOX_FACTOR = 0.25; //Amount of zoom from double clicks. Increase to increase zoom
+var MAX_ITERATIONS = 1200; //Number of iterations. Higher is slower but more detailed.
+var STATIC_ZOOM_BOX_FACTOR = 0.25; //Amount of zoom from clicks. Increase to increase zoom
 var DEFAULT_MESSAGE = "Click or click and drag to zoom";
 
 var globals = {}; //Stores global variables
@@ -104,219 +106,162 @@ function adjusted_RE_MAX() {
 /*------------------------------------------------------------------------------------------------*/
 
 /**
- * Generates a fractal image of a specified size from a given iteration function
- * and coloring function. Returns an imageDataObject
- * @param {int} canvasHeight
- * @param {int} canvasWidth
- * @param {function} iterationFunction
- * @param {function} coloringFunction
- * @returns {imageDataObject} fractalImage
+ * Generates a fractal image using a s given iteration function and coloring function
  */
-function createFractalImage(canvasHeight, canvasWidth, iterationFunction, coloringFunction){
-    
-    var fractalImage = createImageData(canvasWidth, canvasHeight);
-    var imageDataObjectData = fractalImage.data;
+function createFractalImage(canvas, coordinateLimits, iterationFunction, coloringFunction){
+    var startTime = new Date(); // Keep track of how long this render takes
+    var context = canvas.context;
+    var imageDataObjectData = context.imageDataObject.data; // Reference
     var imageIndex = 0;
     
-    for (var y = 0; y < canvasHeight; y++){
+    var canvasWidth = canvas.width;
+    var canvasHeight = canvas.height;
+    
+    var ReMax = coordinateLimits.ReMax;
+    var ReMin = coordinateLimits.ReMin;
+    var ImMax = coordinateLimits.ImMax;
+    var ImMin = coordinateLimits.ImMin;
+    
+    var x_coordinate_to_pixel_conversion = (ReMax - ReMin) / canvasWidth;
+    var y_coordinate_to_pixel_conversion = (ImMin - ImMax) / canvasHeight;
+    
+//    console.log("ReMax:" + ReMax);
+//    console.log("ReMin:" + ReMin);
+//    console.log("ImMax:" + ImMax);
+//    console.log("ImMin:" + ImMin);
+//    
+//    console.log("x: " + x_coordinate_to_pixel_conversion);
+//    console.log("y: " + y_coordinate_to_pixel_conversion);
+    
+    var iterationTotal = 0;
+    
+    for (var y = canvasHeight; y > 0; y--){
+        var imaginary = y * y_coordinate_to_pixel_conversion - ImMin;
         for (var x = 0; x<canvasWidth; x++){
+            var real = x * x_coordinate_to_pixel_conversion + ReMin;
             var iterations = iterationFunction(real, imaginary);
+            iterationTotal += iterations;
             var colorArray = coloringFunction(iterations);
             imageDataObjectData[imageIndex++] = colorArray[0];
             imageDataObjectData[imageIndex++] = colorArray[1];
             imageDataObjectData[imageIndex++] = colorArray[2];
             imageDataObjectData[imageIndex++] = colorArray[3];
         }
+        //console.log("x: " + real + ", y: " + imaginary + ": " + iterations);        
     }
+        
+
+    //Place the image on the canvas
+    context.putImageData(context.imageDataObject, 0, 0);
+
     
-    return fractalImage;
+    //show time taken & number of iterations    
+    var elapsedMilliseconds = (new Date()) - startTime;
+    document.getElementById('elapsedTime').innerHTML = iterationTotal.format() +
+            " iterations in " + (elapsedMilliseconds / 1000).toFixed(2) + " seconds";
+    
+    //Remove "calculating" message
+    document.getElementById('messageBox').innerHTML = DEFAULT_MESSAGE;
+    
+    console.log("ImMax: " + ImMax + ", ImMin: " + ImMin);
+    
 } // createFractalImage
 
 /*------------------------------------------------------------------------------------------------*/
 
-function drawMandelbrot() {
-    var startTime = new Date(); // Keep track of how long this render takes
-    var canvas = globals.canvas;
-    var canvasWidth = canvas.width;
-    var canvasHeight = canvas.height;
-    var ctx = canvas.context;
-    var imageDataObjectData = ctx.imageDataObject.data; // Reference
-
-    //Set extrema needs to have been called first
-    var ReMax = globals.ReMax;
-    var ReMin = globals.ReMin;
-    var ImMax = globals.ImMax;
-    var ImMin = globals.ImMin;
-
-    //Calculate outside the loop for optimization
-    var x_coordinate_to_pixel = (ReMax - ReMin) / canvasWidth;
-    var y_coordinate_to_pixel = (ImMin - ImMax) / canvasHeight;
-
-    //counts the total iterations made
-    var iterationSum = 0;
-    //the current pixel of the image
-    var currentPixel = 0;
-
-    for (var y = 0; y < canvasHeight; y++) {
-        var c_Im = (y * y_coordinate_to_pixel) + ImMax; // c = c_Re + cIm * i
-
-        for (var x = 0; x < canvasWidth; x++) {
-            var c_Re = (x * x_coordinate_to_pixel) + ReMin; //convert the canvas x to the coordinate x
-
-            var z_Re = 0; //z0
-            var z_Im = 0;
-
-            var c_belongsToMandelbrotSet = true;
-            var iterationsForColor = 0;
-            for (var iterationCount = 1; iterationCount <= MAX_ITERATIONS; iterationCount++) {
-                iterationSum++;
-
-                //Calculate here for optimization
-                var z_Re_squared = z_Re * z_Re;
-                var z_Im_squared = z_Im * z_Im;
-
-                //checks if magnitude of z is greater than 2 and thus diverges to infinity
-                if (z_Re_squared + z_Im_squared > 4) {
-                    c_belongsToMandelbrotSet = false; // c is not a part of the Mandelbrot Set
-                    iterationsForColor = iterationCount;
-                    break;
-                } // if
-
-                //the next Z value
-                z_Im = (2 * z_Re * z_Im) + c_Im;
-                z_Re = z_Re_squared - z_Im_squared + c_Re;
-
-            } // for
-            var colorArray = [];
-            if (c_belongsToMandelbrotSet) {
-                colorArray = MANDELBROT_SET_COLOR;
-            } else {
-                colorArray = setColor(iterationsForColor);
-            } // if-else
-            imageDataObjectData[currentPixel++] = colorArray[0];    //RED
-            imageDataObjectData[currentPixel++] = colorArray[1];    //GREEN
-            imageDataObjectData[currentPixel++] = colorArray[2];    //BLUE
-            imageDataObjectData[currentPixel++] = colorArray[3];  //ALPHA
-
-        } // for
-    } // for
-
-    //Place the image on the canvas
-    ctx.putImageData(ctx.imageDataObject, 0, 0);
-
-    var elapsedMilliseconds = (new Date()) - startTime;
-    // Show elapsed time
-    document.getElementById('elapsedTime').innerHTML = iterationSum.format() +
-            " iterations in " + (elapsedMilliseconds / 1000).toFixed(2) + " seconds";
-    //Remove "calculating" message
-    document.getElementById('messageBox').innerHTML = DEFAULT_MESSAGE;
+/**
+ * Draw the Mandelbrot Set
+ */
+function drawMandelbrotSet(){
+    var RE_MAX = 1.1;
+    var RE_MIN = -2.5;
+    var IM_MAX = 1.2;
+    var IM_MIN = -1.2;
+    //var coordinateLimits = {ReMax: RE_MAX, ReMin: globals.RE_MIN, ImMax:globals.IM_MAX, ImMin: globals.IM_MIN};
+    var coordinateLimits = {ReMax: globals.ReMax, ReMin: globals.ReMin, ImMax:globals.ImMax, ImMin: globals.ImMin};
+    createFractalImage(globals.canvas, coordinateLimits, mandelbrotIterationFunction, spectrumCycle);
 } // drawMandelbrotSet
 
 /*------------------------------------------------------------------------------------------------*/
 
-function drawBurningShip() {
+/**
+ * Draw the BurningShip Fractal Set
+ */
+function drawBurningShipFractal(){
+    var RE_MAX = 1.1;
+    var RE_MIN = -2.5;
+    var IM_MAX = 1.2;
+    var IM_MIN = -1.2;
+    var coordinateLimits = {ReMax: globals.ReMax, ReMin: globals.ReMin, ImMax:globals.ImMax, ImMin: globals.ImMin};
+    createFractalImage(globals.canvas, coordinateLimits, burningShipIterationFunction, burningColors);
+} // drawMandelbrotSet
 
-    var startTime = new Date(); // Keep track of how long this render takes
-    var canvas = globals.canvas;
-    var canvasWidth = canvas.width;
-    var canvasHeight = canvas.height;
-    var ctx = canvas.context;
-    var imageDataObjectData = ctx.imageDataObject.data; // Reference
+/*------------------------------------------------------------------------------------------------*/
 
-    //Set extrema needs to have been called first
-    var ReMax = globals.ReMax;
-    var ReMin = globals.ReMin;
-    var ImMax = globals.ImMax;
-    var ImMin = globals.ImMin;
+/**
+ * Iterates according to the Mandelbrot function
+ * @param {type} real
+ * @param {type} imaginary
+ * @returns {undefined}
+ */
+function mandelbrotIterationFunction(c_re, c_im){
+    var z_re = 0;
+    var z_im = 0;
+    for (var iterations = 1; iterations < MAX_ITERATIONS; iterations ++){
+         //Calculate here for optimization
+        var z_re_squared = z_re * z_re;
+        var z_im_squared = z_im * z_im;
+        
+        //checks if magnitude of z is greater than 2 and thus diverges to infinity
+        if (z_re_squared + z_im_squared > 4) {
+            return iterations;
+        } // if
+        
+        //the next Z value
+        z_im = (2 * z_re * z_im) + c_im;
+        z_re = z_re_squared - z_im_squared + c_re;
+    }    
+    return -1;
+} // mandelbrotIterationFunction
 
-    //Calculate outside the loop for opimixation
-    var x_coefficient = (ReMax - ReMin) / canvasWidth;
-    var y_coefficient = (ImMin - ImMax) / canvasHeight;
+/*------------------------------------------------------------------------------------------------*/
 
-    var iterationSum = 0;
-    var currentPixel = 0;
+/**
+ * Iterates according to the Burning Ship fractal
+ */
+function burningShipIterationFunction(c_re, c_im){
+    var z_re = 0; //z0
+    var z_im = 0;
 
-    //for (var y=canvasHeight; y> 0; y--){
-    for (var y = 0; y < canvasHeight; y++) {
-        var c_Im = (y * y_coefficient) + ImMax; // c = c_Re + cIm * i
+    for (var iterations = 1; iterations <= MAX_ITERATIONS; iterations++) {
 
-        for (var x = 0; x < canvasWidth; x++) {
-            var c_Re = (x * x_coefficient) + ReMin; //convert the canvas x to the coordinate x
+        var z_re_squared = z_re * z_re;
+        var z_im_squared = z_im * z_im;
 
-            var z_Re = 0; //z0
-            var z_Im = 0;
+        //checks if magnitude of z is greater than 2 and thus diverges to infinity
+        if (z_re_squared + z_im_squared > 4) {
+            return iterations;
+        } // if
 
-            var c_belongsToBurningShip = true;
-            var iterationsForColor = 0;
-            for (var iterationCount = 1; iterationCount <= MAX_ITERATIONS; iterationCount++) {
-                iterationSum++;
+        var z_re_abs = z_re;
+        var z_im_abs = z_im;
+        if (z_re_abs < 0) {
+            z_re_abs = -z_re_abs;
+        }
+        if (z_im_abs < 0) {
+            z_im_abs = -z_im_abs;
+        }
 
-                //---------
-//                var z_r2 = z_re * z_re;
-//                var z_i2 = z_Im * z_Im;
-//                
-//                if (z_r2 + z_i2 > 4){
-//                    c_belongsToBurningShip = false;
-//                    if (iterationCount <= MAX_ITERATIONS * )
-//                }
+        var z_Re_abs_squared = z_re_abs * z_re_abs;
+        var z_Im_abs_squared = z_im_abs * z_im_abs;
 
-                //---------
-                //Calculate here for optimization
-                var z_Re_squared = z_Re * z_Re;
-                var z_Im_squared = z_Im * z_Im;
-
-                //checks if magnitude of z is greater than 2 and thus diverges to infinity
-                if (z_Re_squared + z_Im_squared > 4) {
-                    c_belongsToBurningShip = false; // c is not a part of the Burning Ship Set
-                    iterationsForColor = iterationCount;
-                    break;
-                } // if
-
-//                var z_Re_abs = Math.abs(z_Re);
-                var z_Re_abs = z_Re;
-                var z_Im_abs = z_Im;
-                if (z_Re_abs < 0) {
-                    z_Re_abs = -z_Re_abs;
-                }
-                if (z_Im_abs < 0) {
-                    z_Im_abs = -z_Im_abs;
-                }
-//                var z_Im_abs = Math.abs(z_Im);
-
-                var z_Re_abs_squared = z_Re_abs * z_Re_abs;
-                var z_Im_abs_squared = z_Im_abs * z_Im_abs;
-
-                //the next Z value
-                //z_Im = (2 * z_Re * z_Im) + c_Im;
-                //z_Re = z_Re_squared - z_Im_squared + c_Re;
-                z_Re = z_Re_abs_squared - z_Im_abs_squared + c_Re;
-                z_Im = (2 * z_Re_abs * z_Im_abs) + c_Im;
-
-            } // for
-            var colorArray = [];
-            if (c_belongsToBurningShip) {
-                colorArray = MANDELBROT_SET_COLOR;
-            } else {
-                colorArray = setColor(iterationsForColor);
-            } // if-else
-            imageDataObjectData[currentPixel++] = colorArray[0];    //RED
-            imageDataObjectData[currentPixel++] = colorArray[1];    //GREEN
-            imageDataObjectData[currentPixel++] = colorArray[2];    //BLUE
-            imageDataObjectData[currentPixel++] = colorArray[3];    //ALPHA
-
-        } // for
+        //the next Z value
+        z_im = (2 * z_re_abs * z_im_abs) + c_im;
+        z_re = z_Re_abs_squared - z_Im_abs_squared + c_re;
     } // for
-
-    //Place the image on the canvas
-    ctx.putImageData(ctx.imageDataObject, 0, 0);
-
-    var elapsedMilliseconds = (new Date()) - startTime;
-    // Show elapsed time
-    document.getElementById('elapsedTime').innerHTML = iterationSum.format() +
-            " iterations in " + (elapsedMilliseconds / 1000).toFixed(2) + " seconds";
-    //Remove "calculating" message
-    document.getElementById('messageBox').innerHTML = DEFAULT_MESSAGE;
-} // drawBurningShip
+    
+    return -1;    
+} // burningShipIterationFunction
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -422,7 +367,8 @@ function xToRe(x) {
  * Converts a canvas y value to complex plane imaginary value
  */
 function yToIm(y) {
-    var y_coefficient = (globals.ImMin - globals.ImMax) / globals.canvas.height;
+    //var y_coefficient = (globals.ImMin - globals.ImMax) / globals.canvas.height;
+    var y_coefficient = -(globals.ImMax - globals.ImMin) / globals.canvas.height
     return (y * y_coefficient) + globals.ImMax;
 } // yToIm
 
@@ -459,6 +405,7 @@ function handlePointer(evt) {
             globals.pointer.x1 = canvasX;
             globals.pointer.y1 = canvasY;
             globals.pointer.down = true;
+            console.log("canvasX: " + canvasX + ", canvasY: " + canvasY);
             break;
         case 'mousemove':
             if (globals.pointer.down) {
@@ -490,19 +437,26 @@ function handlePointer(evt) {
 
                 // center the zoom box
                 ReMin = xToRe(canvasX - halfStaticZoomBoxWidth);
-                ImMax = yToIm(canvasY - halfStaticZoomBoxHeight);
+                ImMax = yToIm(canvasY - halfStaticZoomBoxHeight);                
+                //ImMin = yToIm(canvasY - halfStaticZoomBoxHeight);
 
                 ReMax = xToRe(canvasX + halfStaticZoomBoxWidth);
-                ImMin = yToIm(canvasY + halfStaticZoomBoxHeight);
+                ImMin = yToIm(canvasY + halfStaticZoomBoxHeight);                
+                //ImMax = yToIm(canvasY + halfStaticZoomBoxHeight);
             } else {
                 //A (possibly tiny) box was drawn, so perform zoom to that box
                 ReMin = xToRe(globals.pointer.x1);
                 ImMax = yToIm(globals.pointer.y1);
+                //ImMax = yToIm(globals.pointer.y1);
 
                 ReMax = xToRe(zoomBoxWidth + globals.pointer.x1);
                 ImMin = yToIm(zoomBoxHeight + globals.pointer.y1);
+                //ImMin = yToIm(globals.pointer.y1 = zoomBoxHeight);
             } // if-else
 
+            
+            console.log("CanvasY: %d, PointerY: %d, ZoomBoxHeight: %d, ImMax: %f, ImMin: %f", 
+                canvasY, globals.pointer.y1, zoomBoxHeight, ImMax, ImMin);
             document.getElementById('messageBox').innerHTML = "Calculating...";
             // Clear previous data
             document.getElementById('elapsedTime').innerHTML = "";
@@ -511,17 +465,17 @@ function handlePointer(evt) {
             // Allows "calculating" to be displayed
             if (window.setImmediate) {
                 if (FRACTAL_SELECTOR === 0) {
-                    window.setImmediate(drawMandelbrot);
+                    window.setImmediate(drawMandelbrotSet);
                 } else if (FRACTAL_SELECTOR === 1) {
-                    window.setImmediate(drawBurningShip);
+                    window.setImmediate(drawBurningShipFractal);
                 } else if (FRACTAL_SELECTOR === 2) {
                     window.setImmediate(drawJulia);
                 }
             } else {
                 if (FRACTAL_SELECTOR === 0) {
-                    window.setTimeout(drawMandelbrot, 0);
+                    window.setTimeout(drawMandelbrotSet, 0);
                 } else if (FRACTAL_SELECTOR === 1) {
-                    window.setTimeout(drawBurningShip, 0);
+                    window.setTimeout(drawBurningShipFractal, 0);
                 } else if (FRACTAL_SELECTOR === 2) {
                     window.setTimeout(drawJulia, 0);
                 }
@@ -548,13 +502,13 @@ function setExtrema(ReMax, ReMin, ImMax, ImMin) {
 /*------------------------------------------------------------------------------------------------*/
 
 function resetZoom() {
-    var reMax = adjusted_RE_MAX();
-
+    var reMax = adjusted_RE_MAX();    
     setExtrema(reMax, RE_MIN, IM_MAX, IM_MIN);
     if (FRACTAL_SELECTOR === 0) {
-        drawMandelbrot();
+        drawMandelbrotSet();
     } else if (FRACTAL_SELECTOR === 1) {
-        drawBurningShip();
+        //drawBurningShip();
+        drawBurningShipFractal()
     } else if (FRACTAL_SELECTOR === 2) {
         drawJulia();
     }
@@ -712,6 +666,9 @@ function burningColors(iterations) {
 }
 
 function burningColorsTwo(iterations) {
+    if (iterations < 0){
+        return MANDELBROT_SET_COLOR;
+    }
     var color = iterations % 255;
     var r = (color - 200) * 3;//(color/3.0)^2;
     //console.log(r);
@@ -752,6 +709,9 @@ function singleHueStraight(iterations) {
 }
 
 function spectrumCycle(iterations) {
+    if (iterations < 0){
+        return MANDELBROT_SET_COLOR;
+    }
     var round = true;
     var hue = iterations % 764;
     var r = 1;
