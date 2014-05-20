@@ -5,20 +5,10 @@ var m_RE_MIN = -2.5;
 var m_IM_MAX = 1.2;
 var m_IM_MIN = -1.2;
 
-//var m_RE_MAX = 1.0;
-//var m_RE_MIN = -2.0;
-//var m_IM_MAX = 1.5;
-//var m_IM_MIN = -1.5;
-
 var j_RE_MAX = 1.45;
 var j_RE_MIN = -2.15;
 var j_IM_MAX = 1.2;
 var j_IM_MIN = -1.2;
-
-//var j_RE_MAX = 1.0;
-//var j_RE_MIN = -2.0;
-//var j_IM_MAX = 1.5;
-//var j_IM_MIN = -1.5;
 
 var MANDELBROT_SET_COLOR = [0, 0, 0, 255];
 var ZOOM_BOX_COLOR = "rgba(255, 255, 255, 0.3)";
@@ -31,7 +21,7 @@ var JULIA_SEED_IM = .3542;//0.34442
 
 var MAX_ITERATIONS = 500; //Number of iterations. Higher is slower but more detailed.
 var STATIC_ZOOM_BOX_FACTOR = 0.25; //Amount of zoom from clicks. Increase to increase zoom
-var DEFAULT_MESSAGE = "Click or click and drag to zoom";
+var DEFAULT_MESSAGE = "";
 
 var globals = {}; //Stores global variables
 
@@ -181,14 +171,6 @@ function createFractalImage(canvas, coordinateLimits, iterationFunction, colorin
     var x_coordinate_to_pixel_conversion = (ReMax - ReMin) / canvasWidth;
     var y_coordinate_to_pixel_conversion = (ImMin - ImMax) / canvasHeight;
 
-//    console.log("ReMax:" + ReMax);
-//    console.log("ReMin:" + ReMin);
-//    console.log("ImMax:" + ImMax);
-//    console.log("ImMin:" + ImMin);
-//    
-//    console.log("x: " + x_coordinate_to_pixel_conversion);
-//    console.log("y: " + y_coordinate_to_pixel_conversion);
-
     var iterationTotal = 0;
 
     for (var y = canvasHeight; y > 0; y--) {
@@ -202,9 +184,8 @@ function createFractalImage(canvas, coordinateLimits, iterationFunction, colorin
             imageDataObjectData[imageIndex++] = colorArray[1];
             imageDataObjectData[imageIndex++] = colorArray[2];
             imageDataObjectData[imageIndex++] = colorArray[3];
-        }
-        //console.log("x: " + real + ", y: " + imaginary + ": " + iterations);        
-    }
+        } // for
+    } // for
 
 
     //Place the image on the canvas
@@ -219,8 +200,6 @@ function createFractalImage(canvas, coordinateLimits, iterationFunction, colorin
     //Remove "calculating" message
     document.getElementById('messageBox').innerHTML = DEFAULT_MESSAGE;
 
-    console.log("ImMax: " + ImMax + ", ImMin: " + ImMin);
-
 } // createFractalImage
 
 /*------------------------------------------------------------------------------------------------*/
@@ -229,11 +208,6 @@ function createFractalImage(canvas, coordinateLimits, iterationFunction, colorin
  * Draw the Mandelbrot Set
  */
 function drawMandelbrotSet() {
-    var RE_MAX = 1.1;
-    var RE_MIN = -2.5;
-    var IM_MAX = 1.2;
-    var IM_MIN = -1.2;
-    //var coordinateLimits = {ReMax: RE_MAX, ReMin: globals.RE_MIN, ImMax:globals.IM_MAX, ImMin: globals.IM_MIN};
     var coordinateLimits = {ReMax: globals.mReMax, ReMin: globals.mReMin, ImMax: globals.mImMax, ImMin: globals.mImMin};
     createFractalImage(globals.canvasM, coordinateLimits, mandelbrotIterationFunction, setColor);
 } // drawMandelbrotSet
@@ -241,27 +215,9 @@ function drawMandelbrotSet() {
 /*------------------------------------------------------------------------------------------------*/
 
 /**
- * Draw the BurningShip Fractal Set
- */
-function drawBurningShipFractal() {
-    var RE_MAX = 1.1;
-    var RE_MIN = -2.5;
-    var IM_MAX = 1.2;
-    var IM_MIN = -1.2;
-    var coordinateLimits = {ReMax: globals.ReMax, ReMin: globals.ReMin, ImMax: globals.ImMax, ImMin: globals.ImMin};
-    createFractalImage(globals.canvas, coordinateLimits, burningShipIterationFunction, setColor);
-} // drawBurningShipFractal
-
-/*------------------------------------------------------------------------------------------------*/
-
-/**
  * Draw a Julia Set
  */
 function drawJuliaSet() {
-    var RE_MAX = 1.1;
-    var RE_MIN = -2.5;
-    var IM_MAX = 1.2;
-    var IM_MIN = -1.2;
     var coordinateLimits = {ReMax: globals.jReMax, ReMin: globals.jReMin, ImMax: globals.jImMax, ImMin: globals.jImMin};
     createFractalImage(globals.canvasJ, coordinateLimits, juliaIterationFunction, setColor);
 } // drawJuliaSet
@@ -293,45 +249,6 @@ function mandelbrotIterationFunction(c_re, c_im) {
     }
     return -1;
 } // mandelbrotIterationFunction
-
-/*------------------------------------------------------------------------------------------------*/
-
-/**
- * Iterates according to the Burning Ship fractal
- */
-function burningShipIterationFunction(c_re, c_im) {
-    var z_re = 0; //z0
-    var z_im = 0;
-
-    for (var iterations = 1; iterations <= MAX_ITERATIONS; iterations++) {
-
-        var z_re_squared = z_re * z_re;
-        var z_im_squared = z_im * z_im;
-
-        //checks if magnitude of z is greater than 2 and thus diverges to infinity
-        if (z_re_squared + z_im_squared > 4) {
-            return iterations;
-        } // if
-
-        var z_re_abs = z_re;
-        var z_im_abs = z_im;
-        if (z_re_abs < 0) {
-            z_re_abs = -z_re_abs;
-        }
-        if (z_im_abs < 0) {
-            z_im_abs = -z_im_abs;
-        }
-
-        var z_Re_abs_squared = z_re_abs * z_re_abs;
-        var z_Im_abs_squared = z_im_abs * z_im_abs;
-
-        //the next Z value
-        z_im = (2 * z_re_abs * z_im_abs) + c_im;
-        z_re = z_Re_abs_squared - z_Im_abs_squared + c_re;
-    } // for
-
-    return -1;
-} // burningShipIterationFunction
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -370,7 +287,7 @@ function juliaIterationFunction(c_re, c_im) {
 function xToReM(x) {
     var x_coefficient = (globals.mReMax - globals.mReMin) / globals.canvasM.width;
     return (x * x_coefficient) + globals.mReMin;
-} // xToRe
+} // xToReM
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -381,7 +298,9 @@ function yToImM(y) {
     //var y_coefficient = (globals.ImMin - globals.ImMax) / globals.canvas.height;
     var y_coefficient = -(globals.mImMax - globals.mImMin) / globals.canvasM.height
     return (y * y_coefficient) + globals.mImMax;
-} // yToIm
+} // yToImM
+
+/*------------------------------------------------------------------------------------------------*/
 
 /**
  * Converts a canvas x value to complex plane real value
@@ -389,7 +308,7 @@ function yToImM(y) {
 function xToReJ(x) {
     var x_coefficient = (globals.jReMax - globals.jReMin) / globals.canvasJ.width;
     return (x * x_coefficient) + globals.jReMin;
-} // xToRe
+} // xToReJ
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -400,7 +319,7 @@ function yToImJ(y) {
     //var y_coefficient = (globals.ImMin - globals.ImMax) / globals.canvas.height;
     var y_coefficient = -(globals.jImMax - globals.jImMin) / globals.canvasJ.height
     return (y * y_coefficient) + globals.jImMax;
-} // yToIm
+} // yToImJ
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -437,7 +356,6 @@ function handlePointerM(evt) {
             globals.pointerM.x1 = canvasX;
             globals.pointerM.y1 = canvasY;
             globals.pointerM.down = true;
-            //console.log("canvasX: " + canvasX + ", canvasY: " + canvasY);
             break;
         case 'mousemove':
             if (globals.pointerM.down) {
@@ -470,13 +388,12 @@ function handlePointerM(evt) {
                 //A (possibly tiny) box was drawn, so perform zoom to that box
                 ReMin = xToReM(globals.pointerM.x1);
                 ImMax = yToImM(globals.pointerM.y1);
-                //ImMax = yToIm(globals.pointer.y1);
 
                 ReMax = xToReM(zoomBoxWidth + globals.pointerM.x1);
                 ImMin = yToImM(zoomBoxHeight + globals.pointerM.y1);
 
                 setExtremaM(ReMax, ReMin, ImMax, ImMin);
-                //ImMin = yToIm(globals.pointer.y1 = zoomBoxHeight);
+                
                 document.getElementById('messageBox').innerHTML = "Calculating...";
                 // Clear previous data
                 document.getElementById('elapsedTime').innerHTML = "";
@@ -493,7 +410,9 @@ function handlePointerM(evt) {
             alert("Error in switch statement");
     } // switch
 
-}
+} // handlePointerM
+
+/*------------------------------------------------------------------------------------------------*/
 
 function handlePointerJ(evt) {
     var canvas = globals.canvasJ;
@@ -526,7 +445,6 @@ function handlePointerJ(evt) {
             globals.pointerJ.x1 = canvasX;
             globals.pointerJ.y1 = canvasY;
             globals.pointerJ.down = true;
-            //console.log("canvasX: " + canvasX + ", canvasY: " + canvasY);
             break;
         case 'mousemove':
             if (globals.pointerJ.down) {
@@ -575,7 +493,7 @@ function handlePointerJ(evt) {
         default:
             alert("Error in switch statement");
     } // switch
-}
+} // handlePointerJ
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -588,7 +506,9 @@ function setExtremaM(ReMax, ReMin, ImMax, ImMin) {
     globals.mReMin = ReMin;
     globals.mImMax = ImMax;
     globals.mImMin = ImMin;
-} // setExtrema
+} // setExtremaM
+
+/*------------------------------------------------------------------------------------------------*/
 
 /**
  * Sets the boundaries of the coordinate system. Should be called before any call
@@ -599,7 +519,7 @@ function setExtremaJ(ReMax, ReMin, ImMax, ImMin) {
     globals.jReMin = ReMin;
     globals.jImMax = ImMax;
     globals.jImMin = ImMin;
-} // setExtrema
+} // setExtremaJ
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -608,6 +528,8 @@ function resetZoomM() {
     setExtremaM(reMax, m_RE_MIN, m_IM_MAX, m_IM_MIN);
     drawMandelbrotSet();
 } // resetZoom
+
+/*------------------------------------------------------------------------------------------------*/
 
 function resetZoomJ() {
     var reMax = adjusted_RE_MAX_J();
@@ -628,8 +550,6 @@ function setCanvasSize(width) {
 /*------------------------------------------------------------------------------------------------*/
 
 function saveImage(filename) {
-
-//document.getElementById('messageBox').innerHTML = "<strong style='color:red';>CANNOT SAVE FILE</strong>";
     var dataURL = globals.canvasJ.toDataURL("image/png")
     document.getElementById('messageBox').innerHTML = "<a download=" + filename + " href=" + dataURL + " value='download'>Click here to download!</a>";
 
@@ -647,9 +567,11 @@ function handleResetButton() {
 
 function handleColorButton() {
     COLOR_SELECTOR += 1;
-    if (COLOR_SELECTOR > 2) {
+    if (COLOR_SELECTOR > 9) {
         COLOR_SELECTOR = 0;
     }
+    drawMandelbrotSet();
+    drawJuliaSet();
 } // handleLightenButton
 
 /*------------------------------------------------------------------------------------------------*/
@@ -684,49 +606,34 @@ function handleFormSubmit(evt) {
 /*------------------------------------------------------------------------------------------------*/
 
 function setColor(iterations) {
-    //return [255, 255, 255, 255];
-//                for (var divisions = 10; divisions > 0; divisions--){
-//                    if (iterations < (MAX_ITERATIONS / divisions)){
-//                        return [0, 0, 20*divisions, 255];
-//                    }
-//                }
-
-//    var color = iterations % 255;
-//    //var color = Math.round(color / 10);
-//    //return [25, color*10, color*10, 255];
-//    return [25, color, color, 255];
-//    return [0, 0, iterations % 255, 255];
-//
-//    return [0, 255, 0, 255];
-//    
-    //return [255, 255, 255, 255];
-    //return juliaColors(iterations);
-    //return burningColors(iterations);
-    //return singleHueStraight(iterations + 50);
-    //return spectrumCycle(iterations);
-
-    if (COLOR_SELECTOR === 0) {
-        return juliaColors(iterations);
-    } else if (COLOR_SELECTOR === 1) {
-        return spectrumCycle(iterations);
-    } else if (COLOR_SELECTOR === 2) {
-        return burningColors(iterations);
-    } else if (COLOR_SELECTOR === 3) {
-        return singleHueStraight(iterations + 50);
-    } else {
-        return [255, 255, 255, 255];
+    switch (COLOR_SELECTOR){
+        case 0:
+            return juliaColors(iterations);
+        case 1:
+            return spectrumCycle(iterations);
+        case 2:
+            return burningColors(iterations);
+        case 3:
+            return singleHueStraightR(iterations);
+        case 4:
+            return singleHueStraightG(iterations);
+        case 5:
+            return singleHueStraightB(iterations);
+        case 6:
+            return singleHueStraightP(iterations);
+        case 7:
+            return singleHueStraightY(iterations);
+        case 8:
+            return singleHueStraightC(iterations);
+        case 9:
+            return singleHueStraightW(iterations);
+        default:
+            return spectrumCycle(iterations);
     }
-
-//                if (iterations < (MAX_ITERATIONS / 10)){
-//                    return [255, 0, 0, 255];
-//                } else if (iterations < (MAX_ITERATIONS / 4)){
-//                    return [0, 255, 0, 255];
-//                } else if (iterations < (3 * MAX_ITERATIONS / 2)){
-//                    return [0, 0, 255, 255];
-//                } else {
-//                    return [255, 255, 0, 255];
-//                } // if
+    
 } // setColor
+
+/*------------------------------------------------------------------------------------------------*/
 
 function juliaColors(iterations) {
     if (iterations < 0) {
@@ -739,30 +646,21 @@ function juliaColors(iterations) {
     return [r, g, b, 255];
 }
 
+/*------------------------------------------------------------------------------------------------*/
 
 function burningColors(iterations) {
-    //return burningColorsPurpleToGreen(iterations);
-    return burningColorsTwo(iterations);
-}
-
-function burningColorsTwo(iterations) {
     if (iterations < 0) {
         return MANDELBROT_SET_COLOR;
     }
     var color = iterations % 255;
-    var r = (color - 200) * 3;//(color/3.0)^2;
-    //console.log(r);
-    //var g = (iterations * 2)^(1/2);
-    var g = color;// - (color/4.0)^2;
+    var r = (color - 200) * 3;
+    var g = color;
     var b = 100 - color ^ 2;
-    //var b = 0;
-
-//    if (color > 200){
-//        r = color - 200;
-//    }
-//    
+ 
     return [r, g, b, 255];
 }
+
+/*------------------------------------------------------------------------------------------------*/
 
 function burningColorsPurpleToGreen(iterations) {
 
@@ -771,22 +669,58 @@ function burningColorsPurpleToGreen(iterations) {
     var g = iterations;
     var b = 50 - iterations / 25;
     return [r, g, b, 255];
-
-    //return spectrumCycle(iterations);
-//var color
-    //return [255,255,255,255];
 }
 
-function singleHueStraight(iterations) {
+/*------------------------------------------------------------------------------------------------*/
+
+function singleHueStraightR(iterations) {
     var color = iterations % 255;
-    return [5, 0, color, 255];
-    //var color = Math.round(color / 10);
-    //return [25, color*10, color*10, 255];
-//    return [25, color, color, 255];
-//    return [0, 0, iterations % 255, 255];
-//
-//    return [0, 255, 0, 255];
+    return [color, 0, 0, 255];
 }
+
+/*------------------------------------------------------------------------------------------------*/
+
+function singleHueStraightG(iterations) {
+    var color = iterations % 255;
+    return [0, color, 0, 255];
+}
+
+/*------------------------------------------------------------------------------------------------*/
+
+function singleHueStraightB(iterations) {
+    var color = iterations % 255;
+    return [0, 0, color, 255];
+}
+
+/*------------------------------------------------------------------------------------------------*/
+
+function singleHueStraightY(iterations) {
+    var color = iterations % 255;
+    return [color, color, 0, 255];
+}
+
+/*------------------------------------------------------------------------------------------------*/
+
+function singleHueStraightC(iterations) {
+    var color = iterations % 255;
+    return [0, color, color, 255];
+}
+
+/*------------------------------------------------------------------------------------------------*/
+
+function singleHueStraightP(iterations) {
+    var color = iterations % 255;
+    return [color, 0, color, 255];
+}
+
+/*------------------------------------------------------------------------------------------------*/
+
+function singleHueStraightW(iterations) {
+    var color = iterations % 255;
+    return [color, color, color, 255];
+}
+
+/*------------------------------------------------------------------------------------------------*/
 
 function spectrumCycle(iterations) {
     if (iterations < 0) {

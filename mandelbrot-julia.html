@@ -15,7 +15,8 @@ For CSSE 325
 
     <body>
         <div><h1>Mandelbrot - Julia Viewer</h1></div>
-        <p>Select a point on the Mandelbrot Set to generate the related Julia Set.</p>
+        <p>Click a point on the Mandelbrot Set to generate the related Julia Set.<br>
+        Click and drag on either image to zoom.</p>
         <table>
             <tr>
                 <td id="messageBox"></td>
@@ -33,9 +34,9 @@ For CSSE 325
         <canvas width="640" height="360" id="mandelbrotCanvas">Canvas not supported - upgrade your browser</canvas><br>
         <canvas width="640" height="360" id="juliaCanvas">Canvas not supported - upgrade your browser</canvas><br>
         <div id="controls">
-            <button type="button" id="resetButton">Reset</button>
-            <button type="button" id="changeColorButton">Colors</button>
-            <button type="button" id="saveButton">Save</button>
+            <button type="button" id="resetButton">Reset Zoom</button>
+            <button type="button" id="changeColorButton">Switch Colors</button>
+            <button type="button" id="saveButton">Save Julia</button>
             <form id="filenameForm">
                 Extensionless filename: <input id="filename" type="text"> <input type="submit" value="Submit">
             </form>
