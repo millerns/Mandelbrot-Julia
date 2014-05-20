@@ -23,6 +23,12 @@ var MAX_ITERATIONS = 500; //Number of iterations. Higher is slower but more deta
 var STATIC_ZOOM_BOX_FACTOR = 0.25; //Amount of zoom from clicks. Increase to increase zoom
 var DEFAULT_MESSAGE = "";
 
+//var CANVAS_WIDTH = 640;
+//var CANVAS_HEIGHT = 360;
+var SIZE_SELECTOR = 1;
+var CANVAS_WIDTH = 0;
+var CANVAS_HEIGHT = 0;
+
 var globals = {}; //Stores global variables
 
 window.addEventListener('load', initialLoad, false);
@@ -58,19 +64,25 @@ function initialLoad() {
 
     document.getElementById('resetButton').addEventListener('click', handleResetButton, false);
     document.getElementById('changeColorButton').addEventListener('click', handleColorButton, false);
+    document.getElementById('changeSizeButton').addEventListener('click', handleSizeButton, false);
     document.getElementById('saveButton').addEventListener('click', handleSaveButton, false);
     document.getElementById('filenameForm').addEventListener('submit', handleFormSubmit, false);
 
     setColorMessage();
-
+    toggleCanvasSize();
     loadSizes();
 } // initialLoad
 
 /*------------------------------------------------------------------------------------------------*/
 
 function loadSizes() {
+     
+    
+    
     //MANDELBROT CANVAS-----------------------------------------
     var canvasM = document.getElementsByTagName('canvas')[0];
+    canvasM.width = CANVAS_WIDTH;
+    canvasM.height = CANVAS_HEIGHT;   
     var canvasMWidth = canvasM.width;
     var canvasMHeight = canvasM.height;
     var ctxM = canvasM.getContext('2d');
@@ -91,6 +103,8 @@ function loadSizes() {
 
     //JULIA CANVAS-------------------------------------------------
     var canvasJ = document.getElementsByTagName('canvas')[1];
+    canvasJ.width = CANVAS_WIDTH;
+    canvasJ.height = CANVAS_HEIGHT;
     var canvasJWidth = canvasJ.width;
     var canvasJHeight = canvasJ.height;
     var ctxJ = canvasJ.getContext('2d');
@@ -585,12 +599,13 @@ function handleSaveButton() {
 
 /*------------------------------------------------------------------------------------------------*/
 
-function handleFractalToggleButton() {
-    FRACTAL_SELECTOR += 1;
-    if (FRACTAL_SELECTOR > 2) {
-        FRACTAL_SELECTOR = 0;
+function handleSizeButton() {
+    SIZE_SELECTOR += 1;
+    if (SIZE_SELECTOR > 4) {
+        SIZE_SELECTOR = 0;
     }
-    resetZoom();
+    toggleCanvasSize();
+    loadSizes();
 }
 
 /*------------------------------------------------------------------------------------------------*/
@@ -604,6 +619,69 @@ function handleFormSubmit(evt) {
     saveImage(filename);
 
 } // handleFormSubmit
+
+/*------------------------------------------------------------------------------------------------*/
+
+/**
+ * Toggle the sizes of the canvases.
+ */
+function toggleCanvasSize(){
+    switch (SIZE_SELECTOR){
+        case 0: //tiny
+            CANVAS_WIDTH = 320;
+            CANVAS_HEIGHT = 180;
+            break;
+        case 1: //small
+            CANVAS_WIDTH = 640;
+            CANVAS_HEIGHT = 360;            
+            break;
+        case 2: //medium
+            CANVAS_WIDTH = 960;
+            CANVAS_HEIGHT = 540;            
+            break;
+        case 3: //large
+            CANVAS_WIDTH = 1280;
+            CANVAS_HEIGHT = 720;            
+            break;
+        case 4: //huge
+            CANVAS_WIDTH = 1920;
+            CANVAS_HEIGHT = 1080;            
+            break;
+        default: //medium
+            CANVAS_WIDTH = 960;
+            CANVAS_HEIGHT = 540;            
+    } // switch
+    setSizeMessage();
+}// toggleCanvasSize
+
+/*------------------------------------------------------------------------------------------------*/
+
+/**
+ * Display the name of the currently selected size
+ */
+function setSizeMessage(){
+    var sizeName = "Uknown Size";
+    switch (SIZE_SELECTOR){
+        case 0: //tiny
+            sizeName = "320 x 180";
+            break;
+        case 1: //small
+            sizeName = "640 x 360";
+            break;
+        case 2: //medium
+            sizeName = "960 x 540";
+            break;
+        case 3: //large
+            sizeName = "1280 x 720";
+            break;
+        case 4: //huge
+            sizeName = "1920 x 1080";
+            break;
+        default: //medium
+            sizeName = "960 x 540";
+    } // switch    
+    document.getElementById("sizeMessage").innerHTML = sizeName;
+} // setSizeMessage
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -655,6 +733,10 @@ function setColorMessage(){
 
 /*------------------------------------------------------------------------------------------------*/
 
+/**
+ * Returns a color for a given number of iterations according to the currently selected
+ * color scheme.
+ */
 function setColor(iterations) {
     switch (COLOR_SELECTOR){
         case 0:
@@ -679,8 +761,7 @@ function setColor(iterations) {
             return singleHueStraightW(iterations);
         default:
             return spectrumCycle(iterations);
-    }
-    
+    } // switch    
 } // setColor
 
 /*------------------------------------------------------------------------------------------------*/
