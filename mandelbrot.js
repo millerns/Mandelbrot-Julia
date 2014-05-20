@@ -18,7 +18,7 @@ var COLOR_SELECTOR = 1;
 var JULIA_SEED_RE = -.67319;//-0.67319
 var JULIA_SEED_IM = .3542;//0.34442
 
-var MAX_ITERATIONS = 1200; //Number of iterations. Higher is slower but more detailed.
+var MAX_ITERATIONS = 2000; //Number of iterations. Higher is slower but more detailed.
 var STATIC_ZOOM_BOX_FACTOR = 0.25; //Amount of zoom from clicks. Increase to increase zoom
 var DEFAULT_MESSAGE = "Click or click and drag to zoom";
 
@@ -674,7 +674,7 @@ function spectrumCycle(iterations) {
     if (iterations < 0){
         return MANDELBROT_SET_COLOR;
     }
-    var round = true;
+    var round = false;
     var hue = iterations % 764;
     var r = 1;
     var g = 1;

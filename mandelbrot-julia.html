@@ -18,8 +18,9 @@ For CSSE 325
         <p>Select a point on the Mandelbrot Set to generate the related Julia Set.</p>
         <table>
             <tr>
-                <td id="messageBoxM"></td>
-                <td id="elapsedTimeM"></td>
+                <td id="messageBox"></td>
+                <td id="selectedPoint"></td>
+                <td id="elapsedTime"></td>
             </tr>
         </table>
         <!--
@@ -29,29 +30,16 @@ For CSSE 325
             640     360
             320     180
         -->
-        <canvas width="960" height="540">Canvas not supported - upgrade your browser</canvas><br>
-        <canvas width="960" height="540">Canvas not supported - upgrade your browser</canvas><br>
-        <table>
-            <tr>
-                <td id="messageBoxJ"></td>
-                <td id="elapsedTimeJ"></td>
-            </tr>
-        </table>
-        <button type="button" id="resetButton">Reset</button>
-        <button type="button" id="changeColorButton">Colors</button>
-        <button type="button" id="saveButton">Save</button>
-        <button type="button" id="fractalToggleButton">Toggle</button>
-        <form id="filenameForm">
-            Extensionless filename: <input id="filename" type="text"> <input type="submit" value="Submit">
-        </form>
-        <form id="paramatersForm">
-            Width: <input id="width" type="number" name="width" value="1200" min="300" max="3000" step="300">
-            Iterations: <input id="iterations" type="number" name="iterations" value="900" min="100" max="3000" step="100">
-            <button type="button" id="changeParametersButton">Update</button>
-        </form>
+        <canvas width="640" height="360" id="mandelbrotCanvas">Canvas not supported - upgrade your browser</canvas><br>
+        <canvas width="640" height="360" id="juliaCanvas">Canvas not supported - upgrade your browser</canvas><br>
+        <div id="controls">
+            <button type="button" id="resetButton">Reset</button>
+            <button type="button" id="changeColorButton">Colors</button>
+            <button type="button" id="saveButton">Save</button>
+            <form id="filenameForm">
+                Extensionless filename: <input id="filename" type="text"> <input type="submit" value="Submit">
+            </form>
+        </div>
         <br>
-        <script>
-            
-        </script> 
     </body>
 </html>
