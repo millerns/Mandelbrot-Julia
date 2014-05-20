@@ -70,12 +70,18 @@ function initialLoad() {
     document.getElementById('changeIterationButton').addEventListener('click', handleIterationButton, false);
     document.getElementById('saveButton').addEventListener('click', handleSaveButton, false);
     document.getElementById('filenameForm').addEventListener('submit', handleFormSubmit, false);
+        
+    globals.j_re = JULIA_SEED_RE;
+    globals.j_im = JULIA_SEED_IM;
     
     setJuliaPointMessage();
     setColorMessage();
     toggleCanvasSize();
     toggleIterations();
     loadSizes();
+    
+    resetZoomM();
+    resetZoomJ();
 } // initialLoad
 
 /*------------------------------------------------------------------------------------------------*/
@@ -129,12 +135,8 @@ function loadSizes() {
     globals.staticZoomBoxWidth = STATIC_ZOOM_BOX_FACTOR * canvasMWidth;
     globals.staticZoomBoxHeight = STATIC_ZOOM_BOX_FACTOR * canvasMHeight;
 
-
-    globals.j_re = JULIA_SEED_RE;
-    globals.j_im = JULIA_SEED_IM;
-
-    resetZoomM();
-    resetZoomJ();
+    drawMandelbrotSet();
+    drawJuliaSet();
 } // loadSizes
 
 /*------------------------------------------------------------------------------------------------*/
@@ -568,7 +570,7 @@ function setCanvasSize(width) {
 
 function saveImage(filename) {
     var dataURL = globals.canvasJ.toDataURL("image/png")
-    document.getElementById('selectedPoint').innerHTML = "<a download=" + filename + " href=" + dataURL + " value='download'>Click here to download!</a>";
+    document.getElementById('saveMessage').innerHTML = "<a download=" + filename + " href=" + dataURL + " value='download'>Click here to download!</a>";
 
     document.getElementById('filenameForm').style.visibility = "hidden";
 } // handleFormSubmit
