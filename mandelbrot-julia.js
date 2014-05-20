@@ -61,6 +61,8 @@ function initialLoad() {
     document.getElementById('saveButton').addEventListener('click', handleSaveButton, false);
     document.getElementById('filenameForm').addEventListener('submit', handleFormSubmit, false);
 
+    setColorMessage();
+
     loadSizes();
 } // initialLoad
 
@@ -75,7 +77,6 @@ function loadSizes() {
 
     //Set the table width equal to the canvas width
     document.getElementsByTagName('table')[0].width = canvasMWidth;
-    document.getElementById('messageBox').innerHTML = DEFAULT_MESSAGE;
 
     globals.canvasM = canvasM;
     globals.canvasM.context = ctxM;
@@ -198,7 +199,7 @@ function createFractalImage(canvas, coordinateLimits, iterationFunction, colorin
             " iterations in " + (elapsedMilliseconds / 1000).toFixed(2) + " seconds";
 
     //Remove "calculating" message
-    document.getElementById('messageBox').innerHTML = DEFAULT_MESSAGE;
+    //document.getElementById('messageBox').innerHTML = DEFAULT_MESSAGE;
 
 } // createFractalImage
 
@@ -394,7 +395,7 @@ function handlePointerM(evt) {
 
                 setExtremaM(ReMax, ReMin, ImMax, ImMin);
                 
-                document.getElementById('messageBox').innerHTML = "Calculating...";
+                //document.getElementById('messageBox').innerHTML = "Calculating...";
                 // Clear previous data
                 document.getElementById('elapsedTime').innerHTML = "";
 
@@ -477,7 +478,7 @@ function handlePointerJ(evt) {
                 
                 console.log("CanvasY: %d, PointerY: %d, ZoomBoxHeight: %d, ImMax: %f, ImMin: %f",
                     canvasY, globals.pointerJ.y1, zoomBoxHeight, ImMax, ImMin);
-                document.getElementById('messageBox').innerHTML = "Calculating...";
+                //document.getElementById('messageBox').innerHTML = "Calculating...";
                 // Clear previous data
                 document.getElementById('elapsedTime').innerHTML = "";
 
@@ -551,7 +552,7 @@ function setCanvasSize(width) {
 
 function saveImage(filename) {
     var dataURL = globals.canvasJ.toDataURL("image/png")
-    document.getElementById('messageBox').innerHTML = "<a download=" + filename + " href=" + dataURL + " value='download'>Click here to download!</a>";
+    document.getElementById('selectedPoint').innerHTML = "<a download=" + filename + " href=" + dataURL + " value='download'>Click here to download!</a>";
 
     document.getElementById('filenameForm').style.visibility = "hidden";
 } // handleFormSubmit
@@ -570,6 +571,7 @@ function handleColorButton() {
     if (COLOR_SELECTOR > 9) {
         COLOR_SELECTOR = 0;
     }
+    setColorMessage();
     drawMandelbrotSet();
     drawJuliaSet();
 } // handleLightenButton
@@ -602,6 +604,54 @@ function handleFormSubmit(evt) {
     saveImage(filename);
 
 } // handleFormSubmit
+
+/*------------------------------------------------------------------------------------------------*/
+
+/**
+ * Displays the name of the currently selected color scheme on the page.
+ */
+function setColorMessage(){
+    var colorMessage = document.getElementById("colorMessage");
+    var colorName = "N/A";
+    
+    switch (COLOR_SELECTOR){
+        case 0:
+            colorName = "Crazy Blue";
+            break;
+        case 1:
+            colorName = "Spectrum Cycle";
+            break;
+        case 2:
+            colorName = "Burning Green";
+            break;
+        case 3:
+            colorName = "Red";
+            break;
+        case 4:
+            colorName = "Green";
+            break;
+        case 5:
+            colorName = "Blue";
+            break;
+        case 6:
+            colorName = "Purple";
+            break;
+        case 7:
+            colorName = "Yellow";
+            break;
+        case 8:
+            colorName = "Cyan";
+            break;
+        case 9:
+            colorName = "White";
+            break;
+        default:
+            colorName = "Uknown Color";
+    }
+    
+    colorMessage.innerHTML = colorName;
+    
+} // setColorMessage
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -748,3 +798,5 @@ function spectrumCycle(iterations) {
     }
     return [r, g, b, 255];
 }
+
+/*------------------------------------------------------------------------------------------------*/

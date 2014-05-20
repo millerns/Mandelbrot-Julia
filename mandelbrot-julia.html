@@ -19,7 +19,6 @@ For CSSE 325
         Click and drag on either image to zoom.</p>
         <table>
             <tr>
-                <td id="messageBox"></td>
                 <td id="selectedPoint"></td>
                 <td id="elapsedTime"></td>
             </tr>
@@ -33,9 +32,19 @@ For CSSE 325
         -->
         <canvas width="640" height="360" id="mandelbrotCanvas">Canvas not supported - upgrade your browser</canvas><br>
         <canvas width="640" height="360" id="juliaCanvas">Canvas not supported - upgrade your browser</canvas><br>
+        <table>
+            <tr>
+                <td id="colorMessage">COLOR</td>
+                <td id="sizeMessage">SIZE</td>
+                <td id="iterationMessage">ITERATION</td>
+            </tr>
+        </table>
         <div id="controls">
             <button type="button" id="resetButton">Reset Zoom</button>
             <button type="button" id="changeColorButton">Switch Colors</button>
+            <button type="button" id="changeSizeButton">Toggle Size</button>
+            <button type="button" id="changeSizeButton">More Iterations</button>
+            <button type="button" id="changeSizeButton">Fewer Iterations</button>
             <button type="button" id="saveButton">Save Julia</button>
             <form id="filenameForm">
                 Extensionless filename: <input id="filename" type="text"> <input type="submit" value="Submit">
