@@ -569,8 +569,11 @@ function setCanvasSize(width) {
 /*------------------------------------------------------------------------------------------------*/
 
 function saveImage(filename) {
-    var dataURL = globals.canvasJ.toDataURL("image/png")
-    document.getElementById('saveMessage').innerHTML = "<a download=" + filename + " href=" + dataURL + " value='download'>Click here to download!</a>";
+    var dataURLM = globals.canvasM.toDataURL("image/png");
+    var dataURLJ = globals.canvasJ.toDataURL("image/png");
+    document.getElementById('saveMessage').innerHTML = "<a download=" + filename + " href=" + dataURLM +
+            " value='download'>Download Mandelbrot</a> or <a download=" + filename + " href=" + dataURLJ +
+            " value='download'>Download Julia</a>";
 
     document.getElementById('filenameForm').style.visibility = "hidden";
 } // handleFormSubmit
@@ -630,7 +633,7 @@ function handleFormSubmit(evt) {
     evt.preventDefault(); // Do not refresh the page when submit is clicked
     var filename = evt.target[0].value;
     if (filename === "") {
-        filename = "Julia.png";
+        filename = "Fractal.png";
     }
     saveImage(filename);
 
