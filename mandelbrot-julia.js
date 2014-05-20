@@ -29,6 +29,8 @@ var SIZE_SELECTOR = 1;
 var CANVAS_WIDTH = 0;
 var CANVAS_HEIGHT = 0;
 
+var ITERATION_SELECTOR = 4;
+
 var globals = {}; //Stores global variables
 
 window.addEventListener('load', initialLoad, false);
@@ -65,11 +67,13 @@ function initialLoad() {
     document.getElementById('resetButton').addEventListener('click', handleResetButton, false);
     document.getElementById('changeColorButton').addEventListener('click', handleColorButton, false);
     document.getElementById('changeSizeButton').addEventListener('click', handleSizeButton, false);
+    document.getElementById('changeIterationButton').addEventListener('click', handleIterationButton, false);
     document.getElementById('saveButton').addEventListener('click', handleSaveButton, false);
     document.getElementById('filenameForm').addEventListener('submit', handleFormSubmit, false);
 
     setColorMessage();
     toggleCanvasSize();
+    toggleIterations();
     loadSizes();
 } // initialLoad
 
@@ -490,8 +494,6 @@ function handlePointerJ(evt) {
                 ReMax = xToReJ(zoomBoxWidth + globals.pointerJ.x1);
                 ImMin = yToImJ(zoomBoxHeight + globals.pointerJ.y1);
                 
-                console.log("CanvasY: %d, PointerY: %d, ZoomBoxHeight: %d, ImMax: %f, ImMin: %f",
-                    canvasY, globals.pointerJ.y1, zoomBoxHeight, ImMax, ImMin);
                 //document.getElementById('messageBox').innerHTML = "Calculating...";
                 // Clear previous data
                 document.getElementById('elapsedTime').innerHTML = "";
@@ -606,7 +608,19 @@ function handleSizeButton() {
     }
     toggleCanvasSize();
     loadSizes();
-}
+} // handleSizeButton
+
+/*------------------------------------------------------------------------------------------------*/
+
+function handleIterationButton() {
+    ITERATION_SELECTOR += 1;
+    if (ITERATION_SELECTOR > 7) {
+        ITERATION_SELECTOR = 0;
+    }
+    toggleIterations();
+    drawMandelbrotSet();
+    drawJuliaSet();
+} // handleIterationButton
 
 /*------------------------------------------------------------------------------------------------*/
 
@@ -619,6 +633,81 @@ function handleFormSubmit(evt) {
     saveImage(filename);
 
 } // handleFormSubmit
+
+/*------------------------------------------------------------------------------------------------*/
+
+/**
+ * Change the maximum number of iterations to perform
+ */
+function toggleIterations(){
+    switch (ITERATION_SELECTOR){
+        case 0:
+            MAX_ITERATIONS = 5;
+            break;
+        case 1:
+            MAX_ITERATIONS = 10;
+            break;
+        case 2:
+            MAX_ITERATIONS = 25;
+            break;
+        case 3:
+            MAX_ITERATIONS = 100;
+            break;
+        case 4:
+            MAX_ITERATIONS = 500;
+            break;
+        case 5:
+            MAX_ITERATIONS = 1000;
+            break;
+        case 6:
+            MAX_ITERATIONS = 2000;
+            break;            
+        case 7:
+            MAX_ITERATIONS = 3000;
+            break;
+        default:
+            MAX_ITERATIONS = 500;
+    } // switch    
+    setIterationMessage();
+} // toggleIterations
+
+/*------------------------------------------------------------------------------------------------*/
+
+/**
+ * Display the maximum number of iterations to perform
+ */
+function setIterationMessage(){
+    var iterationName = "Uknown Iterations";
+    switch (ITERATION_SELECTOR){
+        case 0:
+            iterationName = "5";
+            break;
+        case 1:
+            iterationName = "10";
+            break;
+        case 2:
+            iterationName = "25";
+            break;
+        case 3:
+            iterationName = "100";
+            break;
+        case 4:
+            iterationName = "500";
+            break;
+        case 5:
+            iterationName = "1000";
+            break;
+        case 6:
+            iterationName = "2000";
+            break;            
+        case 7:
+            iterationName = "3000";
+            break;
+        default:
+            iterationName = "Uknown iterations";
+    } // switch    
+    document.getElementById("iterationMessage").innerHTML = iterationName + " iterations";
+} // setIterationMessage
 
 /*------------------------------------------------------------------------------------------------*/
 
