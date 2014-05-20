@@ -70,7 +70,8 @@ function initialLoad() {
     document.getElementById('changeIterationButton').addEventListener('click', handleIterationButton, false);
     document.getElementById('saveButton').addEventListener('click', handleSaveButton, false);
     document.getElementById('filenameForm').addEventListener('submit', handleFormSubmit, false);
-
+    
+    setJuliaPointMessage();
     setColorMessage();
     toggleCanvasSize();
     toggleIterations();
@@ -80,8 +81,6 @@ function initialLoad() {
 /*------------------------------------------------------------------------------------------------*/
 
 function loadSizes() {
-     
-    
     
     //MANDELBROT CANVAS-----------------------------------------
     var canvasM = document.getElementsByTagName('canvas')[0];
@@ -213,7 +212,7 @@ function createFractalImage(canvas, coordinateLimits, iterationFunction, colorin
 
     //show time taken & number of iterations    
     var elapsedMilliseconds = (new Date()) - startTime;
-    document.getElementById('elapsedTime').innerHTML = iterationTotal.format() +
+    document.getElementById('timeMessage').innerHTML = iterationTotal.format() +
             " iterations in " + (elapsedMilliseconds / 1000).toFixed(2) + " seconds";
 
     //Remove "calculating" message
@@ -336,7 +335,7 @@ function xToReJ(x) {
  */
 function yToImJ(y) {
     //var y_coefficient = (globals.ImMin - globals.ImMax) / globals.canvas.height;
-    var y_coefficient = -(globals.jImMax - globals.jImMin) / globals.canvasJ.height
+    var y_coefficient = -(globals.jImMax - globals.jImMin) / globals.canvasJ.height;
     return (y * y_coefficient) + globals.jImMax;
 } // yToImJ
 
@@ -401,8 +400,9 @@ function handlePointerM(evt) {
                 globals.j_im = yToImM(globals.pointerM.y1);
 
                 //draw julia set
+                setJuliaPointMessage();
                 resetZoomJ();
-                drawJuliaSet();
+                //drawJuliaSet();
             } else {
                 //A (possibly tiny) box was drawn, so perform zoom to that box
                 ReMin = xToReM(globals.pointerM.x1);
@@ -415,7 +415,7 @@ function handlePointerM(evt) {
                 
                 //document.getElementById('messageBox').innerHTML = "Calculating...";
                 // Clear previous data
-                document.getElementById('elapsedTime').innerHTML = "";
+                document.getElementById('timeMessage').innerHTML = "";
 
                 // Allows "calculating" to be displayed
                 if (window.setImmediate) {
@@ -496,7 +496,7 @@ function handlePointerJ(evt) {
                 
                 //document.getElementById('messageBox').innerHTML = "Calculating...";
                 // Clear previous data
-                document.getElementById('elapsedTime').innerHTML = "";
+                document.getElementById('timeMessage').innerHTML = "";
 
                 setExtremaJ(ReMax, ReMin, ImMax, ImMin);
                 // Allows "calculating" to be displayed
@@ -633,6 +633,15 @@ function handleFormSubmit(evt) {
     saveImage(filename);
 
 } // handleFormSubmit
+
+/*------------------------------------------------------------------------------------------------*/
+
+/**
+ * Display the currently used seed for the displayed julia set
+ */
+function setJuliaPointMessage(){
+    document.getElementById("pointMessage").innerHTML = "Seed: (" + globals.j_re + ", " + globals.j_im + "i)";   
+} // setJuliaPointMessage
 
 /*------------------------------------------------------------------------------------------------*/
 
